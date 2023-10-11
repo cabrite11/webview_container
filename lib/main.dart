@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -22,6 +20,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyHomePageState createState() => _MyHomePageState();
 }
 
@@ -75,20 +74,65 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class WebViewScreen extends StatelessWidget {
+class WebViewScreen extends StatefulWidget {
   final String initialUrl;
 
   const WebViewScreen({super.key, required this.initialUrl});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _WebViewScreenState createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  late WebViewController _webViewController;
+  bool _isLoading = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('WebView'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (_webViewController != null) {
+              // if (_isLoading) {
+                _webViewController.canGoBack().then((canGoBack) {
+                  if (canGoBack) {
+                    _webViewController.goBack();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                });
+              // } else {
+              //   Navigator.pop(context);
+              // }
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _webViewController.reload();
+            },
+          ),
+        ],
       ),
       body: WebView(
-        initialUrl: initialUrl,
+        initialUrl: widget.initialUrl,
         javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+        onPageFinished: (url) {
+          setState(() {
+            _isLoading = false;
+          });
+        },
       ),
     );
   }
