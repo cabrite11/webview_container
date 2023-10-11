@@ -86,7 +86,6 @@ class WebViewScreen extends StatefulWidget {
 
 class _WebViewScreenState extends State<WebViewScreen> {
   late WebViewController _webViewController;
-  bool _isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -96,15 +95,16 @@ class _WebViewScreenState extends State<WebViewScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            // ignore: unnecessary_null_comparison
             if (_webViewController != null) {
               // if (_isLoading) {
-                _webViewController.canGoBack().then((canGoBack) {
-                  if (canGoBack) {
-                    _webViewController.goBack();
-                  } else {
-                    Navigator.pop(context);
-                  }
-                });
+              _webViewController.canGoBack().then((canGoBack) {
+                if (canGoBack) {
+                  _webViewController.goBack();
+                } else {
+                  Navigator.pop(context);
+                }
+              });
               // } else {
               //   Navigator.pop(context);
               // }
@@ -127,11 +127,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (controller) {
           _webViewController = controller;
-        },
-        onPageFinished: (url) {
-          setState(() {
-            _isLoading = false;
-          });
         },
       ),
     );
